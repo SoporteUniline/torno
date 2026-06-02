@@ -43,6 +43,7 @@
   .rw:last-of-type{border-bottom:none}
   .rn{font-size:16px;font-weight:700;color:#1e2a3a;flex:1;line-height:1.35}
   .rd{font-size:13px;color:var(--m);line-height:1.3;margin-top:2px}
+  .rd b{color:var(--r);font-weight:800}
   .acts{margin-top:6px;padding:8px 10px;background:#f7f9fc;border-left:3px solid var(--n);border-radius:0 6px 6px 0}
   .act{display:flex;justify-content:flex-start;align-items:baseline;padding:3px 0;gap:10px}
   .act-n{font-size:13px;color:#1e2a3a;font-weight:600}
@@ -205,7 +206,9 @@ function renderCotizacion(c){
     }else{
       sec.items.forEach(function(item){
         h+='<div class="rw"><div class="rn">'+item.nombre;
-        if(item.comentario)h+='<div class="rd">'+item.comentario+'</div>';
+        if(item.comentario || item.manejaCantidad){
+          h+='<div class="rd">'+(item.manejaCantidad?'<b>'+(item.cantidad||1)+'×</b> ':'')+(item.comentario||'')+'</div>';
+        }
         if(item.actividades && item.actividades.length>0){
           h+='<div class="acts">';
           item.actividades.forEach(function(a){
@@ -310,7 +313,8 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
         txt(item.nombre||'',M,y+(esCarta?5:3),'#1e2a3a',fs.body,false);
         if(mostrar)txt(fmt(item.precio),W-M,y+(esCarta?5:3),navy,fs.sub,true,'right');
         y+=esCarta?8:4;
-        if(item.comentario){txt(item.comentario,M,y+(esCarta?4:2.5),gray,fs.small,false);y+=esCarta?7:3}
+        var coment=(item.manejaCantidad?(item.cantidad||1)+'× ':'')+(item.comentario||'');
+        if(coment){txt(coment,M,y+(esCarta?4:2.5),gray,fs.small,false);y+=esCarta?7:3}
         if(item.actividades && item.actividades.length>0){
           item.actividades.forEach(function(a){
             if(esCarta&&y>270){doc.addPage();y=20}
@@ -420,7 +424,8 @@ function descargarImagen(){
             txt(item.nombre||'',M,y+11,'#1e2a3a',FS_ITEM,false);
             if(preciosVisibles)txt(fmt(item.precio),W-M,y+11,navy,FS_PRICE,true,'right');
             y+=18;
-            if(item.comentario){txt(item.comentario,M,y+8,gray,FS_DET,false);y+=14}
+            var coment=(item.manejaCantidad?(item.cantidad||1)+'× ':'')+(item.comentario||'');
+            if(coment){txt(coment,M,y+8,gray,FS_DET,false);y+=14}
             if(item.actividades && item.actividades.length>0){
               fill(M,y,W-M*2,item.actividades.length*20+8,'#f7f9fc');
               fill(M,y,3,item.actividades.length*20+8,navy);
