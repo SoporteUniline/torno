@@ -97,13 +97,15 @@
 <div class="c" id="cotCard">
   <div class="hd">
     <img src="https://res.cloudinary.com/djtjnoajc/image/upload/v1778773818/tornoauto-imagotipo-_-slogan-full-color-rgb-900px-w-72ppi_ovzkdr.png" alt="TornoAuto" class="lg-img" id="logoImg" crossorigin="anonymous">
-    <div class="cn"><small>Cotización</small><strong id="cotFolio">#---</strong></div>
+    <div class="cn"><small id="tituloDocumento">Cotización</small><strong id="cotFolio">#---</strong></div>
   </div>
   <div class="cl">
     <div><span>Cliente</span><strong id="cotCliente">-</strong></div>
     <div><span>Motor</span><strong id="cotMotor">-</strong></div>
   </div>
   <div class="bar">
+    <button class="pbtn" id="btnTipoDoc" onclick="toggleTipoDocumento()" style="background:#475569;">📄 Cotización</button>
+
     <select id="selFiltro" class="sel-filtro">
       <option value="todo">📋 Todo</option>
       <option value="mo">🔧 Solo mano de obra</option>
@@ -115,13 +117,13 @@
     <button class="pbtn pbtn-img" onclick="descargarImagen()">🖼 Imagen</button>
   </div>
   <div class="bd" id="cotBody"></div>
-  <div class="ft">Cotización válida por 15 días · TornoAuto</div>
+  <div class="ft" id="footerDocumento">Cotización válida por 15 días · TornoAuto</div>
 </div>
 
 <script>
 var API_URL = 'https://script.google.com/macros/s/AKfycbwmFBoM7cFqvm_xz95jKhXjrc5jvvNPvAhMnEtmq1WtumPEyTw6H-Jp1D5X7BWGiKZr/exec';
 
-var cotData=null,preciosVisibles=true,LOGO_URL='https://res.cloudinary.com/djtjnoajc/image/upload/v1777399852/tornoauto-imagotipo-full-color-rgb-900px-w-72ppi_wgbkmp.png',LOGO_DATA=null,LOGO_W=900,LOGO_H=200;
+var cotData=null,preciosVisibles=true,tipoDocumento='Cotizacion',LOGO_URL='https://res.cloudinary.com/djtjnoajc/image/upload/v1777399852/tornoauto-imagotipo-full-color-rgb-900px-w-72ppi_wgbkmp.png',LOGO_DATA=null,LOGO_W=900,LOGO_H=200;
 
 function getFolio(){
   var p=new URLSearchParams(window.location.search);
@@ -164,6 +166,31 @@ window.onload=function(){
     });
 };
 
+// INTERRUPTOR DE TIPO DE DOCUMENTO
+function toggleTipoDocumento(){
+  var btn = document.getElementById('btnTipoDoc');
+  var titulo = document.getElementById('tituloDocumento');
+  var footer = document.getElementById('footerDocumento');
+  
+  if(tipoDocumento === 'Cotizacion'){
+    tipoDocumento = 'Comprobante';
+    if(btn) btn.innerHTML = '🧾 Comprobante';
+    if(titulo) titulo.textContent = 'Comprobante';
+    if(footer) footer.textContent = 'Comprobante generado · TornoAuto';
+    document.title = 'Comprobante | TornoAuto';
+  } else {
+    tipoDocumento = 'Cotizacion';
+    if(btn) btn.innerHTML = '📄 Cotización';
+    if(titulo) titulo.textContent = 'Cotización';
+    if(footer) footer.textContent = 'Cotización válida por 15 días · TornoAuto';
+    document.title = 'Cotización | TornoAuto';
+  }
+}
+
+function textoDocumentoMayus(){
+  return tipoDocumento === 'Cotizacion' ? 'COTIZACIÓN' : 'COMPROBANTE';
+}
+
 function fmt(n){return 'Q '+n.toLocaleString('es-GT',{minimumFractionDigits:2,maximumFractionDigits:2})}
 
 function cotFiltrada(){
@@ -195,7 +222,7 @@ function renderCotizacion(c){
         var tags='';
         if(r.medida)tags+='<span class="rep-tag"><b>Medida</b>'+r.medida+'</span>';
         if(r.escadm)tags+='<span class="rep-tag"><b>ESC/ADM</b>'+r.escadm+'</span>';
-        if(r.presentacion)tags+='<span class="rep-tag"><b>Present.</b>'+r.presentacion+'</span>';
+        if(r.presentacion)tags+='<span class="rep-tag"><b>Pres.</b>'+r.presentacion+'</span>';
         if(r.contiene)tags+='<span class="rep-tag"><b>Contiene</b>'+r.contiene+'</span>';
         if(r.marca && r.marca!=='---')tags+='<span class="rep-tag"><b>Marca</b>'+r.marca+'</span>';
         if(r.nr && r.nr!==r.repuesto)tags+='<span class="rep-tag"><b>NR</b>'+r.nr+'</span>';
@@ -257,7 +284,9 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
   var logoW=LOGO_DATA?(LOGO_W/LOGO_H)*logoH:logoH*4;
   if(LOGO_DATA){try{doc.addImage(LOGO_DATA,'PNG',M,y+(hdrH-logoH)/2,logoW,logoH)}catch(e){txt('TornoAuto',M,y+(esCarta?16:9),navy,fs.h1,true)}}
   else{txt('TornoAuto',M,y+(esCarta?16:9),navy,fs.h1,true)}
-  txt('COTIZACIÓN',W-M,y+(esCarta?10:5.5),gray,fs.tiny,false,'right');
+  
+  // TÍTULO DINÁMICO EN EL PDF
+  txt(textoDocumentoMayus(),W-M,y+(esCarta?10:5.5),gray,fs.tiny,false,'right');
   txt('#'+c.folio,W-M,y+(esCarta?22:11.5),red,fs.h2,true,'right');
   y+=hdrH;
   var infoH=esCarta?24:11;
@@ -347,7 +376,10 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
   txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+(esCarta?10:4),y+ntH*0.62,'#1e2a3a',fs.small,false);
   y+=ntH+(esCarta?6:2);
   fill(0,y,W,esCarta?12:6,bg);
-  txt('Cotización válida por 15 días · TornoAuto',W/2,y+(esCarta?8:4),gray,fs.tiny+1,false,'center');
+  
+  // PIE DE PÁGINA DINÁMICO EN EL PDF
+  var txtFoot = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
+  txt(txtFoot,W/2,y+(esCarta?8:4),gray,fs.tiny+1,false,'center');
   y+=(esCarta?12:6);
   return y;
 }
@@ -356,17 +388,18 @@ function descargarPDF(tipo){
   var c=cotFiltrada();if(!c)return;
   precargarLogo(function(){
     var jsPDF=window.jspdf.jsPDF;
+    var nombreArchivo = tipoDocumento === 'Cotizacion' ? 'Cotizacion' : 'Comprobante';
     if(tipo==='carta'){
       var doc=new jsPDF({unit:'mm',format:'letter'});
       dibujarPDF(doc,doc.internal.pageSize.getWidth(),c,preciosVisibles,true);
-      doc.save('Cotizacion_'+c.folio+'_carta.pdf');
+      doc.save(nombreArchivo+'_'+c.folio+'_carta.pdf');
     }else{
       var W=80;
       var tmp=new jsPDF({unit:'mm',format:[W,300]});
       var h=dibujarPDF(tmp,W,c,preciosVisibles,false);
       var doc2=new jsPDF({unit:'mm',format:[W,h+2]});
       dibujarPDF(doc2,W,c,preciosVisibles,false);
-      doc2.save('Cotizacion_'+c.folio+'_ticket.pdf');
+      doc2.save(nombreArchivo+'_'+c.folio+'_ticket.pdf');
     }
   });
 }
@@ -389,7 +422,9 @@ function descargarImagen(){
       fill(0,y,W,hdrH,'#ffffff');fill(0,y+hdrH-3,W,3,navy);
       if(logoOk){var logoH=48,logoW=(LOGO_W/LOGO_H)*logoH;ctx.drawImage(logoImg,M,y+(hdrH-logoH)/2,logoW,logoH)}
       else{txt('TornoAuto',M,y+45,navy,32,true)}
-      txt('COTIZACIÓN',W-M,y+28,gray,12,false,'right');
+      
+      // TÍTULO DINÁMICO EN LA IMAGEN
+      txt(textoDocumentoMayus(),W-M,y+28,gray,12,false,'right');
       txt('#'+c.folio,W-M,y+58,red,28,true,'right');
       y+=hdrH;
       fill(0,y,W,52,bg);ln(0,y+52,W,y+52,border);
@@ -465,10 +500,16 @@ function descargarImagen(){
       fill(M,y,W-M*2,32,'#fdf0f2');fill(M,y,4,32,red);
       txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+16,y+20,'#1e2a3a',13,false);
       y+=42;
-      fill(0,y,W,24,bg);txt('Cotización válida por 15 días · TornoAuto',W/2,y+16,gray,12,false,'center');y+=24;
+      
+      // PIE DE PÁGINA DINÁMICO EN LA IMAGEN
+      var txtFootImg = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
+      fill(0,y,W,24,bg);txt(txtFootImg,W/2,y+16,gray,12,false,'center');y+=24;
+      
       var final=document.createElement('canvas');final.width=W*S;final.height=y*S;
       final.getContext('2d').drawImage(canvas,0,0);
-      var link=document.createElement('a');link.download='Cotizacion_'+c.folio+'.png';link.href=final.toDataURL('image/png');link.click();
+      var link=document.createElement('a');
+      var nombreArchivoImg = tipoDocumento === 'Cotizacion' ? 'Cotizacion' : 'Comprobante';
+      link.download=nombreArchivoImg+'_'+c.folio+'.png';link.href=final.toDataURL('image/png');link.click();
     };
     if(LOGO_DATA){logoImg.onload=function(){dibujar(true)};logoImg.onerror=function(){dibujar(false)};logoImg.src=LOGO_DATA}
     else{dibujar(false)}
