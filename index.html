@@ -122,7 +122,7 @@
 </div>
 
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbx_1g-LLcBYAOfbSn_Kkrk1z1lr8eht9iz2SFhklpCM0-yIS0g3NqatARRM_1Qq9LjU/exec';
+var API_URL = 'https://script.google.com/macros/s/AKfycbzW49u8vB3WATbn_Rhkx6LW8oWiuelf4JQJVF1jnHp6QaCHMApfzUYEJX6HC1sj4zG9/exec';
 
 var cotData=null,preciosVisibles=true,tipoDocumento='Cotizacion',LOGO_URL='https://res.cloudinary.com/djtjnoajc/image/upload/v1778773818/tornoauto-imagotipo-_-slogan-full-color-rgb-900px-w-72ppi_ovzkdr.png',LOGO_DATA=null,LOGO_W=900,LOGO_H=200;
 
@@ -156,7 +156,7 @@ window.onload=function(){
     .then(function(r){return r.json()})
     .then(function(r){
       document.getElementById('msgBox').style.display='none';
-      if(r.success){cotData=r.cotizacion;renderCotizacion(cotFiltrada())}
+      if(r.success){cotData=ordenarCotizacion(r.cotizacion);renderCotizacion(cotFiltrada())}
       else{
         document.getElementById('msgBox').style.display='block';
         document.getElementById('msgBox').innerHTML='<p class="msg-error">❌ '+(r.error||'Error desconocido')+'</p>';
@@ -193,11 +193,45 @@ function textoDocumentoMayus(){
 
 function fmt(n){return 'Q '+n.toLocaleString('es-GT',{minimumFractionDigits:2,maximumFractionDigits:2})}
 
+function numOrden(v,fallback){
+  var n=parseFloat(String(v===null||v===undefined?'':v).replace(',','.'));
+  return isNaN(n)?fallback:n;
+}
+
+function ordenarCotizacion(c){
+  if(!c || !Array.isArray(c.secciones))return c;
+
+  var copia=Object.assign({},c);
+  copia.secciones=c.secciones.slice().sort(function(a,b){
+    var oa=numOrden(a.ordenCategoria,9999);
+    var ob=numOrden(b.ordenCategoria,9999);
+    if(oa!==ob)return oa-ob;
+    return String(a.titulo||'').localeCompare(String(b.titulo||''));
+  }).map(function(sec){
+    var secCopia=Object.assign({},sec);
+    if(Array.isArray(secCopia.items)){
+      secCopia.items=secCopia.items.slice().sort(function(a,b){
+        var oa=numOrden(a.ordenTarifa,9999);
+        var ob=numOrden(b.ordenTarifa,9999);
+        if(oa!==ob)return oa-ob;
+        var na=String(a.nombre||a.repuesto||a.nr||'');
+        var nb=String(b.nombre||b.repuesto||b.nr||'');
+        return na.localeCompare(nb);
+      });
+    }
+    return secCopia;
+  });
+
+  return copia;
+}
+
+
 function cotFiltrada(){
   if(!cotData)return null;
   var filtro=document.getElementById('selFiltro').value;
-  if(filtro==='todo')return cotData;
-  var secs=cotData.secciones.filter(function(s){
+  var base=ordenarCotizacion(cotData);
+  if(filtro==='todo')return base;
+  var secs=base.secciones.filter(function(s){
     if(filtro==='mo')return s.tipo==='manoObra';
     if(filtro==='rep')return s.tipo==='repuestos';
     return true;
