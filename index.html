@@ -122,7 +122,7 @@
 </div>
 
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbz-xQlZxmktP-FMfpxdsXNewMvDbaE6hMWFPHnoWZ40QqYD6fGGlvejfDfuDesQjXdV/exec';
+var API_URL = 'https://script.google.com/macros/s/AKfycbz1GkMSXIUofVKdbfxAA_N00kU9nngJ1k6g9NjyO5XSpZkztCLAM7YIRnvGA-w3k_B2/exec';
 
 var cotData=null,preciosVisibles=true,tipoDocumento='Cotizacion',LOGO_URL='https://res.cloudinary.com/djtjnoajc/image/upload/v1778773818/tornoauto-imagotipo-_-slogan-full-color-rgb-900px-w-72ppi_ovzkdr.png',LOGO_DATA=null,LOGO_W=900,LOGO_H=200;
 
@@ -210,9 +210,9 @@ function ordenarCotizacion(c){
   }).map(function(sec){
     var secCopia=Object.assign({},sec);
     if(Array.isArray(secCopia.items)){
-      secCopia.items=secCopia.items.slice().sort(function(a,b){
-        var oa=numOrden(a.ordenTarifa,9999);
-        var ob=numOrden(b.ordenTarifa,9999);
+    secCopia.items=secCopia.items.slice().sort(function(a,b){
+        var oa=numOrden(a.orden!==undefined?a.orden:a.ordenTarifa,9999);
+        var ob=numOrden(b.orden!==undefined?b.orden:b.ordenTarifa,9999);
         if(oa!==ob)return oa-ob;
         var na=String(a.nombre||a.repuesto||a.nr||'');
         var nb=String(b.nombre||b.repuesto||b.nr||'');
