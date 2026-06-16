@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -122,7 +123,7 @@
 </div>
 
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbz1GkMSXIUofVKdbfxAA_N00kU9nngJ1k6g9NjyO5XSpZkztCLAM7YIRnvGA-w3k_B2/exec';
+var API_URL = 'https://script.google.com/macros/s/AKfycbz-xQlZxmktP-FMfpxdsXNewMvDbaE6hMWFPHnoWZ40QqYD6fGGlvejfDfuDesQjXdV/exec';
 
 var cotData=null,preciosVisibles=true,tipoDocumento='Cotizacion',LOGO_URL='https://res.cloudinary.com/djtjnoajc/image/upload/v1778773818/tornoauto-imagotipo-_-slogan-full-color-rgb-900px-w-72ppi_ovzkdr.png',LOGO_DATA=null,LOGO_W=900,LOGO_H=200;
 
@@ -210,7 +211,7 @@ function ordenarCotizacion(c){
   }).map(function(sec){
     var secCopia=Object.assign({},sec);
     if(Array.isArray(secCopia.items)){
-    secCopia.items=secCopia.items.slice().sort(function(a,b){
+      secCopia.items=secCopia.items.slice().sort(function(a,b){
         var oa=numOrden(a.orden!==undefined?a.orden:a.ordenTarifa,9999);
         var ob=numOrden(b.orden!==undefined?b.orden:b.ordenTarifa,9999);
         if(oa!==ob)return oa-ob;
@@ -250,7 +251,7 @@ function renderCotizacion(c){
     if(sec.tipo==='repuestos'){
       sec.items.forEach(function(r){
         h+='<div class="rep"><div class="rep-hd">'
-          +'<span class="rep-nombre"><span class="qty">'+(r.cantidad||1)+'×</span> '+(r.repuesto||r.nr||'-')+'</span>'
+          +'<span class="rep-nombre">'+((r.cantidad||1)>1?'<span class="qty">'+r.cantidad+'×</span> ':'')+(r.repuesto||r.nr||'-')+'</span>'
           +'<span class="rep-total precio">'+fmt(r.total||0)+'</span>'
           +'</div>';
         var tags='';
@@ -342,7 +343,7 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
     if(sec.tipo==='repuestos'){
       sec.items.forEach(function(r){
         if(esCarta&&y>250){doc.addPage();y=20}
-        var linea=(r.cantidad||1)+'× '+(r.repuesto||r.nr||'-');
+        var linea=((r.cantidad||1)>1?r.cantidad+'× ':'')+(r.repuesto||r.nr||'-');
         txt(linea,M,y+(esCarta?6:3.5),'#1e2a3a',fs.body,false);
         if(mostrar)txt(fmt(r.total||0),W-M,y+(esCarta?6:3.5),navy,fs.sub,true,'right');
         y+=esCarta?8:4;
@@ -470,7 +471,7 @@ function descargarImagen(){
         y+=28;
         if(sec.tipo==='repuestos'){
           sec.items.forEach(function(r){
-            var linea=(r.cantidad||1)+'× '+(r.repuesto||r.nr||'-');
+            var linea=((r.cantidad||1)>1?r.cantidad+'× ':'')+(r.repuesto||r.nr||'-');
             txt(linea,M,y+12,'#1e2a3a',FS_ITEM,false);
             if(preciosVisibles)txt(fmt(r.total||0),W-M,y+12,navy,FS_PRICE,true,'right');
             y+=22;
