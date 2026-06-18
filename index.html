@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -212,8 +211,8 @@ function ordenarCotizacion(c){
     var secCopia=Object.assign({},sec);
     if(Array.isArray(secCopia.items)){
       secCopia.items=secCopia.items.slice().sort(function(a,b){
-        var oa=numOrden(a.orden!==undefined?a.orden:a.ordenTarifa,9999);
-        var ob=numOrden(b.orden!==undefined?b.orden:b.ordenTarifa,9999);
+        var oa=numOrden(a.orden,numOrden(a.ordenTarifa,9999));
+        var ob=numOrden(b.orden,numOrden(b.ordenTarifa,9999));
         if(oa!==ob)return oa-ob;
         var na=String(a.nombre||a.repuesto||a.nr||'');
         var nb=String(b.nombre||b.repuesto||b.nr||'');
