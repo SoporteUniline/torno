@@ -300,12 +300,12 @@ function renderCotizacion(c){
         h+='</div><span class="rp precio">'+fmt(item.precio)+'</span></div>';
       });
     }
-    if(grupo.flags[i]){
+       if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-        h+='<div class="sb rect"><small>Subtotal Rectificado</small><strong>'+fmt(grupo.suma)+'</strong></div>';
+        h+='<div class="sb"><small>Subtotal</small><strong>'+fmt(grupo.suma)+'</strong></div>';
       }
     }else{
-      h+='<div class="sb"><small>Subtotal</small><strong>'+fmt(sec.subtotal)+'</strong></div>';
+      h+='<div class="sb"><small>'+(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal')+'</small><strong>'+fmt(sec.subtotal)+'</strong></div>';
     }
     h+='</div>';
   });
@@ -433,14 +433,14 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
     ln(M,y,W-M,y,border,0.2);y+=esCarta?3:1.5;
     if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-        txt('SUBTOTAL RECTIFICADO',M,y+(esCarta?6:3.5),red,fs.small,true);
+        txt('Subtotal',W-M-(esCarta?42:27),y+(esCarta?6:3.5),gray,fs.small,false,'right');
         txt(fmt(grupo.suma),W-M,y+(esCarta?6:3.5),navy,fs.sub,true,'right');
         y+=esCarta?14:6;
       }else{
         y+=esCarta?6:3;
       }
     }else{
-      txt('Subtotal',W-M-(esCarta?54:34),y+(esCarta?6:3.5),gray,fs.small,false);
+      txt(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal',W-M-(esCarta?42:27),y+(esCarta?6:3.5),gray,fs.small,false,'right');
       txt(fmt(sec.subtotal),W-M,y+(esCarta?6:3.5),navy,fs.sub,true,'right');
       y+=esCarta?14:6;
     }
@@ -592,16 +592,16 @@ function descargarImagen(){
           });
         }
         y+=8;ln(M,y,W-M,y,border,0.8);y+=24;
-        if(grupo.flags[i]){
+    if(grupo.flags[i]){
           if(i===grupo.lastIdx){
-            txt('SUBTOTAL RECTIFICADO',M,y,red,15,true,'left');
+            txt('Subtotal',W-M-130,y,gray,16,false,'right');
             txt(fmt(grupo.suma),W-M,y,navy,FS_SUB,true,'right');
             y+=30;
           }else{
             y+=6;
           }
         }else{
-          txt('Subtotal',W-M-130,y,gray,16,false,'right');
+          txt(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal',W-M-130,y,gray,16,false,'right');
           txt(fmt(sec.subtotal),W-M,y,navy,FS_SUB,true,'right');
           y+=30;
         }
