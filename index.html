@@ -302,7 +302,7 @@ function renderCotizacion(c){
     }
   if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-        h+='<div class="sb rect"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma)+'</strong></div>';
+h+='<div class="sb"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma)+'</strong></div>';
       }
     }else{
       h+='<div class="sb"><small>'+(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal')+'</small><strong>'+fmt(sec.subtotal)+'</strong></div>';
