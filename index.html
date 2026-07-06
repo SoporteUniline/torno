@@ -300,9 +300,9 @@ function renderCotizacion(c){
         h+='</div><span class="rp precio">'+fmt(item.precio)+'</span></div>';
       });
     }
-       if(grupo.flags[i]){
+  if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-        h+='<div class="sb"><small>Subtotal</small><strong>'+fmt(grupo.suma)+'</strong></div>';
+        h+='<div class="sb rect"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma)+'</strong></div>';
       }
     }else{
       h+='<div class="sb"><small>'+(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal')+'</small><strong>'+fmt(sec.subtotal)+'</strong></div>';
@@ -431,9 +431,9 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
       });
     }
     ln(M,y,W-M,y,border,0.2);y+=esCarta?3:1.5;
-    if(grupo.flags[i]){
+if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-        txt('Subtotal',W-M-(esCarta?42:27),y+(esCarta?6:3.5),gray,fs.small,false,'right');
+        txt('Subtotal Mano de Obra',W-M-(esCarta?42:27),y+(esCarta?6:3.5),gray,fs.small,false,'right');
         txt(fmt(grupo.suma),W-M,y+(esCarta?6:3.5),navy,fs.sub,true,'right');
         y+=esCarta?14:6;
       }else{
