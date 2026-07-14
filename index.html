@@ -332,7 +332,7 @@ function hexRgb(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2
 function dibujarPDF(doc,W,c,mostrar,esCarta){
   var navy='#1a3057',red='#c8102e',bg='#edf1f7',gray='#7a8899',border='#dde3ec';
   var M=esCarta?20:6,y=0;
-  var fs=esCarta?{h1:26,h2:22,h3:16,body:14,small:12,tiny:10,total:30,sub:13}:{h1:14,h2:12,h3:8,body:10,small:9,tiny:7.5,total:13,sub:10};
+  var fs=esCarta?{h1:26,h2:22,h3:16,body:14,small:12,tiny:10,total:30,sub:13,act:12}:{h1:14,h2:12,h3:8,body:10,small:9,tiny:7.5,total:13,sub:10,act:6.5};
   var PADB=esCarta?7:4.5, LHD=esCarta?6:3.5;
   var grupo=analizarGrupo(c.secciones);
   function rgb(h){return hexRgb(h)}
@@ -391,10 +391,10 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
         if(r.marca && r.marca!=='---')det.push('Marca:'+r.marca);
         if(r.nr && r.nr!==r.repuesto)det.push('NR:'+r.nr);
         if(det.length){
-          wrapPDF(det.join(' · '),M+(esCarta?4:2),gray,fs.tiny+1,false,W-M*2-(esCarta?4:2),LHD);
+          wrapPDF(det.join(' · '),M+(esCarta?4:3),gray,esCarta?fs.tiny+1:fs.act,false,W-M*2-(esCarta?4:3),esCarta?LHD:2.9);
         }
         if(r.comentario){
-          wrapPDF('Nota: '+r.comentario,M+(esCarta?4:2),gray,fs.tiny+1,false,W-M*2-(esCarta?4:2),LHD);
+          wrapPDF('Nota: '+r.comentario,M+(esCarta?4:3),gray,esCarta?fs.tiny+1:fs.act,false,W-M*2-(esCarta?4:3),esCarta?LHD:2.9);
         }
         ln(M,y+(esCarta?1:0.5),W-M,y+(esCarta?1:0.5),'#f3f4f7',0.1);
         y+=esCarta?4:2;
@@ -407,22 +407,23 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
         if(mostrar)txt(fmt(item.precio),W-M,startY+PADB,navy,fs.sub,true,'right');
         y+=esCarta?3:1.5;
         var coment=(item.manejaCantidad?(item.cantidad||1)+'× ':'')+(item.comentario||'');
-        if(coment){wrapPDF(coment,M,gray,fs.small,false,W-M*2,LHD)}
+        if(coment){wrapPDF(coment,M+(esCarta?0:3),gray,esCarta?fs.small:fs.act,false,W-M*2-(esCarta?0:3),esCarta?LHD:2.9)}
         if(item.actividades && item.actividades.length>0){
           item.actividades.forEach(function(a){
             if(esCarta&&y>258){doc.addPage();y=20}
             var nombreAct='• '+(a.actividad||'-');
+            doc.setFontSize(fs.act);doc.setFont('helvetica','normal');
             var medW=a.medida?doc.getTextWidth(a.medida)+(esCarta?4:1.5):0;
-            doc.setFontSize(fs.small);doc.setFont('helvetica','normal');
-            var actLines=doc.splitTextToSize(nombreAct,W-M*2-(esCarta?34:14)-medW);
+            var actLines=doc.splitTextToSize(nombreAct,W-M*2-(esCarta?34:8)-medW);
             actLines.forEach(function(l,idx){
               if(esCarta&&y>260){doc.addPage();y=20}
-              txt(l,M+(esCarta?4:1.5),y+(esCarta?5:3.2),navy,fs.small,false);
+              txt(l,M+(esCarta?4:3),y+(esCarta?5:2.6),navy,fs.act,false);
               if(idx===actLines.length-1 && a.medida){
+                doc.setFontSize(fs.act);doc.setFont('helvetica','normal');
                 var offsetX=doc.getTextWidth(l);
-                txt(a.medida,M+(esCarta?4:1.5)+offsetX+(esCarta?3:1),y+(esCarta?5:3.2),red,fs.small,true);
+                txt(a.medida,M+(esCarta?4:3)+offsetX+(esCarta?3:1),y+(esCarta?5:2.6),red,fs.act,true);
               }
-              y+=esCarta?6:3.4;
+              y+=esCarta?6:2.9;
             });
           });
           y+=esCarta?2:1;
@@ -451,9 +452,18 @@ if(grupo.flags[i]){
   txt('TOTAL',M+(esCarta?12:5),y+totH*0.62,'#8899aa',fs.small,true);
   txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-(esCarta?10:4),y+totH*0.68,'#ffffff',fs.total,true,'right');
   y+=totH+(esCarta?8:3);
-  var ntH=esCarta?18:10;
-  fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,esCarta?3:2,ntH,red);
-  txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+(esCarta?12:5),y+ntH*0.62,'#1e2a3a',fs.small,false);
+  var ntH;
+  if(esCarta){
+    ntH=18;
+    fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,3,ntH,red);
+    txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+12,y+ntH*0.62,'#1e2a3a',fs.small,false);
+  }else{
+    doc.setFontSize(7);doc.setFont('helvetica','normal');
+    var antLines=doc.splitTextToSize('Anticipo: Se requiere 50% del total para iniciar trabajo.',W-M*2-8);
+    ntH=4+antLines.length*3.2;
+    fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,2,ntH,red);
+    antLines.forEach(function(l,k){txt(l,M+4,y+3.5+k*3.2,'#1e2a3a',7,false)});
+  }
   y+=ntH+(esCarta?8:3);
   fill(0,y,W,esCarta?16:9,bg);
   
