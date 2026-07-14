@@ -463,6 +463,137 @@ if(grupo.flags[i]){
   return y;
 }
 
+function dibujarPDFCartaTabla(doc,c,mostrar){
+  var navy=hexRgb('#1a3057'),red=hexRgb('#c8102e'),bgc=hexRgb('#edf1f7'),gry=hexRgb('#7a8899'),brd=hexRgb('#dde3ec'),drk=hexRgb('#1e2a3a'),blanco=[255,255,255];
+  var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  var M=10,grupo=analizarGrupo(c.secciones);
+  var wTabla=W-M*2;
+  var wPre=mostrar?26:0;
+  var wCon=(wTabla-wPre)*0.46,wDet=(wTabla-wPre)*0.54;
+
+  function fill(x,yy,w,h,col){doc.setFillColor(col[0],col[1],col[2]);doc.rect(x,yy,w,h,'F')}
+  function txt(t,x,yy,col,sz,bold,align){doc.setTextColor(col[0],col[1],col[2]);doc.setFontSize(sz);doc.setFont('helvetica',bold?'bold':'normal');doc.text(t+'',x,yy,{align:align||'left'})}
+  function ln(x1,y1,x2,y2,col,w){doc.setDrawColor(col[0],col[1],col[2]);doc.setLineWidth(w||0.15);doc.line(x1,y1,x2,y2)}
+
+  var rows=[];
+  c.secciones.forEach(function(sec,i){
+    rows.push({t:'sec',txt:sec.titulo.toUpperCase()});
+    if(sec.tipo==='repuestos'){
+      sec.items.forEach(function(r){
+        var det=[];
+        if(r.medida)det.push('Med: '+r.medida);
+        if(r.escadm)det.push('ESC/ADM: '+r.escadm);
+        if(r.presentacion)det.push('Pres: '+r.presentacion);
+        if(r.contiene)det.push('Cont: '+r.contiene);
+        if(r.marca && r.marca!=='---')det.push('Marca: '+r.marca);
+        if(r.nr && r.nr!==r.repuesto)det.push('NR: '+r.nr);
+        if(r.comentario)det.push('Nota: '+r.comentario);
+        rows.push({t:'item',con:((r.cantidad||1)>1?r.cantidad+'× ':'')+(r.repuesto||r.nr||'-'),det:det.join(' · '),pre:fmt(r.total||0)});
+      });
+    }else{
+      sec.items.forEach(function(item){
+        var det=[];
+        if(item.manejaCantidad)det.push((item.cantidad||1)+'×');
+        if(item.comentario)det.push(item.comentario);
+        (item.actividades||[]).forEach(function(a){det.push('• '+(a.actividad||'-')+(a.medida?' ['+a.medida+']':''))});
+        rows.push({t:'item',con:item.nombre||'',det:det.join('   '),pre:fmt(item.precio)});
+      });
+    }
+    if(grupo.flags[i]){
+      if(i===grupo.lastIdx)rows.push({t:'sub',txt:'Subtotal Mano de Obra',pre:fmt(grupo.suma)});
+    }else{
+      rows.push({t:'sub',txt:sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal',pre:fmt(sec.subtotal)});
+    }
+  });
+
+  var avail=H-20-13-5.5-13.5-10-8-3;
+  var sizes=[
+    {f:9,lh:4,pad:1.6,fd:7.5,lhd:3.3},
+    {f:8.5,lh:3.7,pad:1.4,fd:7,lhd:3},
+    {f:8,lh:3.4,pad:1.2,fd:6.5,lhd:2.8},
+    {f:7.5,lh:3.1,pad:1,fd:6,lhd:2.6},
+    {f:7,lh:2.9,pad:0.9,fd:5.8,lhd:2.4}
+  ];
+  var cfg=sizes[sizes.length-1];
+  for(var s=0;s<sizes.length;s++){
+    var z=sizes[s],tot=0;
+    rows.forEach(function(r){
+      if(r.t==='sec'){tot+=z.lh+z.pad*2;return}
+      if(r.t==='sub'){tot+=z.lh+z.pad*1.5;return}
+      doc.setFontSize(z.f);doc.setFont('helvetica','bold');
+      var l1=doc.splitTextToSize(r.con,wCon-3).length;
+      doc.setFontSize(z.fd);doc.setFont('helvetica','normal');
+      var l2=r.det?doc.splitTextToSize(r.det,wDet-3).length:0;
+      tot+=Math.max(l1*z.lh,l2*z.lhd,z.lh)+z.pad*2;
+    });
+    if(tot<=avail){cfg=z;break}
+  }
+
+  var y=0;
+  fill(0,0,W,20,blanco);ln(0,20,W,20,navy,0.8);
+  var logoH=12,logoW=LOGO_DATA?(LOGO_W/LOGO_H)*logoH:40;
+  if(LOGO_DATA){try{doc.addImage(LOGO_DATA,'PNG',M,4,logoW,logoH)}catch(e){txt('TornoAuto',M,13,navy,18,true)}}
+  else{txt('TornoAuto',M,13,navy,18,true)}
+  txt(textoDocumentoMayus(),W-M,8,gry,8,false,'right');
+  txt('#'+c.folio,W-M,16,red,15,true,'right');
+  y=20;
+
+  fill(0,y,W,10,bgc);ln(0,y+10,W,y+10,brd);
+  txt('CLIENTE:',M,y+6.5,navy,7,true);
+  txt(c.cliente,M+doc.getTextWidth('CLIENTE:')+2,y+6.5,drk,9,true);
+  txt('MOTOR:',W/2,y+6.5,navy,7,true);
+  txt(c.motor,W/2+doc.getTextWidth('MOTOR:')+2,y+6.5,drk,8,false);
+  y+=13;
+
+  var xCon=M,xDet=M+wCon,xPre=W-M;
+  fill(M,y,wTabla,5.5,navy);
+  txt('CONCEPTO',xCon+1.5,y+3.8,blanco,7,true);
+  txt('DETALLE',xDet+1.5,y+3.8,blanco,7,true);
+  if(mostrar)txt('PRECIO',xPre-1.5,y+3.8,blanco,7,true,'right');
+  y+=5.5;
+
+  var alt=false;
+  rows.forEach(function(r){
+    if(r.t==='sec'){
+      if(y+cfg.lh+cfg.pad*2>H-35){doc.addPage();y=10}
+      fill(M,y,wTabla,cfg.lh+cfg.pad*2,bgc);
+      txt(r.txt,M+1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true);
+      y+=cfg.lh+cfg.pad*2;alt=false;return;
+    }
+    if(r.t==='sub'){
+      if(y+cfg.lh+cfg.pad*1.5>H-35){doc.addPage();y=10}
+      txt(r.txt,xPre-(mostrar?30:1.5),y+cfg.pad+cfg.lh-0.8,gry,cfg.fd,false,'right');
+      if(mostrar)txt(r.pre,xPre-1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
+      y+=cfg.lh+cfg.pad*1.5;
+      ln(M,y,W-M,y,brd,0.2);return;
+    }
+    doc.setFontSize(cfg.f);doc.setFont('helvetica','bold');
+    var l1=doc.splitTextToSize(r.con,wCon-3);
+    doc.setFontSize(cfg.fd);doc.setFont('helvetica','normal');
+    var l2=r.det?doc.splitTextToSize(r.det,wDet-3):[];
+    var rh=Math.max(l1.length*cfg.lh,l2.length*cfg.lhd,cfg.lh)+cfg.pad*2;
+    if(y+rh>H-35){doc.addPage();y=10;alt=false}
+    if(alt)fill(M,y,wTabla,rh,[250,251,253]);
+    l1.forEach(function(l,k){txt(l,xCon+1.5,y+cfg.pad+cfg.lh*(k+1)-0.8,drk,cfg.f,false)});
+    l2.forEach(function(l,k){txt(l,xDet+1.5,y+cfg.pad+cfg.lhd*(k+1)-0.8,gry,cfg.fd,false)});
+    if(mostrar)txt(r.pre,xPre-1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
+    ln(M,y+rh,W-M,y+rh,[243,244,247],0.1);
+    y+=rh;alt=!alt;
+  });
+
+  y+=2;
+  fill(M,y,wTabla,11,navy);
+  txt('TOTAL',M+4,y+7.3,[136,153,170],8,true);
+  if(mostrar)txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-4,y+7.6,blanco,13,true,'right');
+  y+=13.5;
+  fill(M,y,wTabla,7,[253,240,242]);fill(M,y,1.5,7,red);
+  txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+4,y+4.7,drk,7.5,false);
+
+  fill(0,H-8,W,8,bgc);
+  var tf=tipoDocumento==='Cotizacion'?'Cotización válida por 15 días · TornoAuto':'Comprobante generado · TornoAuto';
+  txt(tf,W/2,H-3,gry,7,false,'center');
+}
+
 function descargarPDF(tipo){
   var c=cotFiltrada();if(!c)return;
   precargarLogo(function(){
@@ -470,7 +601,7 @@ function descargarPDF(tipo){
     var nombreArchivo = tipoDocumento === 'Cotizacion' ? 'Cotizacion' : 'Comprobante';
     if(tipo==='carta'){
       var doc=new jsPDF({unit:'mm',format:'letter'});
-      dibujarPDF(doc,doc.internal.pageSize.getWidth(),c,preciosVisibles,true);
+      dibujarPDFCartaTabla(doc,c,preciosVisibles);
       doc.save(nombreArchivo+'_'+c.folio+'_carta.pdf');
     }else{
       var W=80;
