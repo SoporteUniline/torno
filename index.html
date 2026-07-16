@@ -20,11 +20,11 @@
   .cn{text-align:right;color:var(--n)}
   .cn small{font-size:14px;text-transform:uppercase;letter-spacing:2px;opacity:.6;color:var(--m)}
   .cn strong{font-size:44px;font-weight:900;display:block;line-height:1.1;color:var(--r)}
-  .cl{display:flex;background:var(--nl);border-bottom:1px solid var(--b)}
+  .cl{display:flex;background:var(--n);border-bottom:1px solid var(--b)}
   .cl div{flex:1;padding:18px 32px;min-width:0}
-  .cl div:first-child{border-right:1px solid var(--b)}
-  .cl span{display:block;font-size:14px;text-transform:uppercase;letter-spacing:1.5px;color:var(--n);font-weight:700;margin-bottom:6px}
-  .cl strong{font-size:22px;color:#1e2a3a;overflow-wrap:anywhere}
+  .cl div:first-child{border-right:1px solid #33507f}
+  .cl span{display:block;font-size:14px;text-transform:uppercase;letter-spacing:1.5px;color:#8fa3c4;font-weight:700;margin-bottom:6px}
+  .cl strong{font-size:24px;color:#fff;overflow-wrap:anywhere}
   .bar{padding:20px 32px 0;display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;align-items:center}
   .pbtn{border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:700;padding:12px 20px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;box-shadow:0 2px 6px rgba(0,0,0,.15)}
   .pbtn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
@@ -61,12 +61,12 @@
   .rep-coment{font-size:16px;color:var(--m);font-style:italic;margin-top:6px;overflow-wrap:anywhere}
   .rp{font-size:20px;color:var(--n);font-weight:800;white-space:nowrap;text-align:right;min-width:100px;transition:all .25s}
   .rp.hide{opacity:0;font-size:0;min-width:0;overflow:hidden}
-  .sb{display:flex;justify-content:flex-end;align-items:center;padding-top:12px;margin-top:10px;border-top:2px dashed var(--b);gap:12px}
-  .sb small{font-size:17px;color:var(--m)}
+  .sb{display:flex;justify-content:flex-end;align-items:center;padding:10px 14px;margin-top:10px;background:#e4eaf4;border-top:2px solid var(--n);border-bottom:2px solid var(--n);gap:12px}
+  .sb small{font-size:17px;color:var(--n);text-transform:uppercase;letter-spacing:.5px}
   .sb strong{font-size:23px;color:var(--n)}
-  .sb.rect small{color:var(--r);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .sb.rect small{color:var(--n);font-weight:700}
   .tb{background:var(--n);border-radius:12px;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;margin:20px 0}
-  .tb span{font-size:17px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+  .tb span{font-size:42px;color:#fff;letter-spacing:1px;font-weight:900}
   .tb strong{font-size:42px;font-weight:900;color:#fff;letter-spacing:-.5px}
   .tb strong small{font-size:24px;font-weight:600;opacity:.5;margin-right:6px}
   .nt{padding:16px 22px;background:#fdf0f2;border-left:5px solid var(--r);border-radius:0 10px 10px 0;font-size:18px;color:#1e2a3a;line-height:1.4}
@@ -85,7 +85,8 @@
     .rn{font-size:18px}
     .rep-nombre{font-size:18px}
     .rp{font-size:17px;min-width:80px}
-    .tb strong{font-size:32px}
+    .tb span{font-size:28px}
+    .tb strong{font-size:28px}
   }
 </style>
 </head>
@@ -186,6 +187,7 @@ function toggleTipoDocumento(){
     if(footer) footer.textContent = 'Cotización válida por 15 días · TornoAuto';
     document.title = 'Cotización | TornoAuto';
   }
+  if(cotData)renderCotizacion(cotFiltrada());
 }
 
 function textoDocumentoMayus(){
@@ -309,8 +311,10 @@ h+='<div class="sb"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma
     }
     h+='</div>';
   });
-  h+='<div class="tb"><span>Total</span><strong><small>Q</small> '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2})+'</strong></div>';
-  h+='<div class="nt"><b>⚠ Anticipo:</b> Se requiere 50% del total para iniciar trabajo.</div>';
+  h+='<div class="tb"><span>TOTAL</span><strong><small>Q</small> '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2})+'</strong></div>';
+  if(tipoDocumento==='Cotizacion'){
+    h+='<div class="nt"><b>⚠ Anticipo:</b> Se requiere 50% del total para iniciar trabajo.</div>';
+  }
   document.getElementById('cotBody').innerHTML=h;
   document.getElementById('cotCard').style.display='block';
 }
@@ -359,14 +363,14 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
   txt('#'+c.folio,W-M,y+(esCarta?26:14),red,fs.h2,true,'right');
   y+=hdrH;
   var infoH=esCarta?28:14;
-  fill(0,y,W,infoH,bg);ln(0,y+infoH,W,y+infoH,border);
-  txt('CLIENTE',M,y+(esCarta?9:5),navy,fs.tiny,true);
-  txt(c.cliente,M,y+(esCarta?20:11),'#1e2a3a',fs.body,true);
-  ln(W/2,y,W/2,y+infoH,border);
-  txt('MOTOR',W/2+(esCarta?10:4),y+(esCarta?9:5),navy,fs.tiny,true);
+  fill(0,y,W,infoH,navy);
+  txt('CLIENTE',M,y+(esCarta?9:5),'#8fa3c4',fs.tiny,true);
+  txt(c.cliente,M,y+(esCarta?20:11),'#ffffff',fs.body,true);
+  ln(W/2,y+(esCarta?3:1.5),W/2,y+infoH-(esCarta?3:1.5),'#33507f');
+  txt('MOTOR',W/2+(esCarta?10:4),y+(esCarta?9:5),'#8fa3c4',fs.tiny,true);
   doc.setFontSize(esCarta?fs.small:fs.tiny+1.5);doc.setFont('helvetica','normal');
   var motorLines=doc.splitTextToSize(c.motor,W/2-M-(esCarta?12:4));
-  doc.setTextColor(hexRgb('#1e2a3a')[0],hexRgb('#1e2a3a')[1],hexRgb('#1e2a3a')[2]);
+  doc.setTextColor(255,255,255);
   doc.text(motorLines,W/2+(esCarta?10:4),y+(esCarta?18:11));
   y+=infoH+(esCarta?6:3);
   c.secciones.forEach(function(sec,i){
@@ -449,22 +453,24 @@ if(grupo.flags[i]){
   var totH=esCarta?24:13;
   if(esCarta&&y>243){doc.addPage();y=20}
   fill(M,y,W-M*2,totH,navy);
-  txt('TOTAL',M+(esCarta?12:5),y+totH*0.62,'#8899aa',fs.small,true);
+  txt('TOTAL',M+(esCarta?12:5),y+totH*0.62,'#ffffff',fs.total,true);
   txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-(esCarta?10:4),y+totH*0.68,'#ffffff',fs.total,true,'right');
   y+=totH+(esCarta?8:3);
-  var ntH;
-  if(esCarta){
-    ntH=18;
-    fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,3,ntH,red);
-    txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+12,y+ntH*0.62,'#1e2a3a',fs.small,false);
-  }else{
-    doc.setFontSize(7);doc.setFont('helvetica','normal');
-    var antLines=doc.splitTextToSize('Anticipo: Se requiere 50% del total para iniciar trabajo.',W-M*2-8);
-    ntH=4+antLines.length*3.2;
-    fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,2,ntH,red);
-    antLines.forEach(function(l,k){txt(l,M+4,y+3.5+k*3.2,'#1e2a3a',7,false)});
+  if(tipoDocumento==='Cotizacion'){
+    var ntH;
+    if(esCarta){
+      ntH=18;
+      fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,3,ntH,red);
+      txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+12,y+ntH*0.62,'#1e2a3a',fs.small,false);
+    }else{
+      doc.setFontSize(7);doc.setFont('helvetica','normal');
+      var antLines=doc.splitTextToSize('Anticipo: Se requiere 50% del total para iniciar trabajo.',W-M*2-8);
+      ntH=4+antLines.length*3.2;
+      fill(M,y,W-M*2,ntH,'#fdf0f2');fill(M,y,2,ntH,red);
+      antLines.forEach(function(l,k){txt(l,M+4,y+3.5+k*3.2,'#1e2a3a',7,false)});
+    }
+    y+=ntH+(esCarta?8:3);
   }
-  y+=ntH+(esCarta?8:3);
   fill(0,y,W,esCarta?16:9,bg);
   
   var txtFoot = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
@@ -475,11 +481,13 @@ if(grupo.flags[i]){
 
 function dibujarPDFCartaTabla(doc,c,mostrar){
   var navy=hexRgb('#1a3057'),red=hexRgb('#c8102e'),bgc=hexRgb('#edf1f7'),gry=hexRgb('#7a8899'),brd=hexRgb('#dde3ec'),drk=hexRgb('#1e2a3a'),blanco=[255,255,255];
+  var subBg=hexRgb('#e4eaf4'),divCol=hexRgb('#e3e8f0'),divNavy=hexRgb('#33507f'),lblNavy=hexRgb('#8fa3c4'),divHdr=hexRgb('#b9c5d8');
   var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
   var M=10,grupo=analizarGrupo(c.secciones);
   var wTabla=W-M*2;
-  var wPre=mostrar?26:0;
-  var wCon=(wTabla-wPre)*0.46,wDet=(wTabla-wPre)*0.54;
+  var wPre=mostrar?27:0;
+  var wCon=(wTabla-wPre)*0.44,wDet=wTabla-wPre-wCon;
+  var xCon=M,xDet=M+wCon,xPre=M+wCon+wDet;
 
   function fill(x,yy,w,h,col){doc.setFillColor(col[0],col[1],col[2]);doc.rect(x,yy,w,h,'F')}
   function txt(t,x,yy,col,sz,bold,align){doc.setTextColor(col[0],col[1],col[2]);doc.setFontSize(sz);doc.setFont('helvetica',bold?'bold':'normal');doc.text(t+'',x,yy,{align:align||'left'})}
@@ -487,7 +495,7 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
 
   var rows=[];
   c.secciones.forEach(function(sec,i){
-    rows.push({t:'sec',txt:sec.titulo.toUpperCase()});
+    rows.push({t:sec.tipo==='repuestos'?'secnav':'sec',txt:sec.titulo.toUpperCase()});
     if(sec.tipo==='repuestos'){
       sec.items.forEach(function(r){
         var det=[];
@@ -510,13 +518,14 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
       });
     }
     if(grupo.flags[i]){
-      if(i===grupo.lastIdx)rows.push({t:'sub',txt:'Subtotal Mano de Obra',pre:fmt(grupo.suma)});
+      if(i===grupo.lastIdx)rows.push({t:'sub',txt:'SUBTOTAL MANO DE OBRA',pre:fmt(grupo.suma)});
     }else{
-      rows.push({t:'sub',txt:sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal',pre:fmt(sec.subtotal)});
+      rows.push({t:'sub',txt:sec.tipo==='repuestos'?'SUBTOTAL REPUESTOS':'SUBTOTAL',pre:fmt(sec.subtotal)});
     }
   });
 
-  var avail=H-20-13-5.5-13.5-10-8-3;
+  var esCot=(tipoDocumento==='Cotizacion');
+  var avail=H-20-19-6-16-(esCot?11:0)-8-4;
   var sizes=[
     {f:9,lh:4,pad:1.6,fd:7.5,lhd:3.3},
     {f:8.5,lh:3.7,pad:1.4,fd:7,lhd:3},
@@ -528,12 +537,12 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
   for(var s=0;s<sizes.length;s++){
     var z=sizes[s],tot=0;
     rows.forEach(function(r){
-      if(r.t==='sec'){tot+=z.lh+z.pad*2;return}
-      if(r.t==='sub'){tot+=z.lh+z.pad*1.5;return}
+      if(r.t==='sec'||r.t==='secnav'){tot+=z.lh+z.pad*2;return}
+      if(r.t==='sub'){tot+=z.lh+z.pad*2;return}
       doc.setFontSize(z.f);doc.setFont('helvetica','bold');
-      var l1=doc.splitTextToSize(r.con,wCon-3).length;
+      var l1=doc.splitTextToSize(r.con,wCon-4).length;
       doc.setFontSize(z.fd);doc.setFont('helvetica','normal');
-      var l2=r.det?doc.splitTextToSize(r.det,wDet-3).length:0;
+      var l2=r.det?doc.splitTextToSize(r.det,wDet-4).length:0;
       tot+=Math.max(l1*z.lh,l2*z.lhd,z.lh)+z.pad*2;
     });
     if(tot<=avail){cfg=z;break}
@@ -548,56 +557,106 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
   txt('#'+c.folio,W-M,16,red,15,true,'right');
   y=20;
 
-  fill(0,y,W,10,bgc);ln(0,y+10,W,y+10,brd);
-  txt('CLIENTE:',M,y+6.5,navy,7,true);
-  txt(c.cliente,M+doc.getTextWidth('CLIENTE:')+2,y+6.5,drk,9,true);
-  txt('MOTOR:',W/2,y+6.5,navy,7,true);
-  txt(c.motor,W/2+doc.getTextWidth('MOTOR:')+2,y+6.5,drk,8,false);
-  y+=13;
+  fill(0,y,W,16,navy);
+  txt('CLIENTE',M,y+5.5,lblNavy,7,true);
+  txt(c.cliente,M,y+12,blanco,12,true);
+  ln(W/2,y+2.5,W/2,y+13.5,divNavy,0.3);
+  txt('MOTOR',W/2+5,y+5.5,lblNavy,7,true);
+  doc.setFontSize(10);doc.setFont('helvetica','bold');
+  doc.setTextColor(255,255,255);
+  var mLines=doc.splitTextToSize(c.motor,W/2-M-7);
+  doc.text(mLines.slice(0,2),W/2+5,y+11.5);
+  y+=19;
 
-  var xCon=M,xDet=M+wCon,xPre=W-M;
-  fill(M,y,wTabla,5.5,navy);
-  txt('CONCEPTO',xCon+1.5,y+3.8,blanco,7,true);
-  txt('DETALLE',xDet+1.5,y+3.8,blanco,7,true);
-  if(mostrar)txt('PRECIO',xPre-1.5,y+3.8,blanco,7,true,'right');
-  y+=5.5;
+  function divisoresRow(yy,h,dark){
+    ln(M,yy,M,yy+h,navy,0.3);
+    ln(W-M,yy,W-M,yy+h,navy,0.3);
+    ln(xDet,yy,xDet,yy+h,dark?divNavy:divCol,0.15);
+    if(mostrar)ln(xPre,yy,xPre,yy+h,dark?divNavy:divCol,0.15);
+  }
 
-  var alt=false;
+  function encabezadoCols(){
+    var hh=6;
+    fill(M,y,wTabla,hh,bgc);
+    ln(M,y,W-M,y,navy,0.4);
+    ln(xDet,y,xDet,y+hh,divHdr,0.2);
+    if(mostrar)ln(xPre,y,xPre,y+hh,divHdr,0.2);
+    ln(M,y,M,y+hh,navy,0.3);ln(W-M,y,W-M,y+hh,navy,0.3);
+    txt('MANO DE OBRA',xCon+2,y+4.2,navy,7.5,true);
+    txt('COMENTARIOS',xDet+2,y+4.2,navy,7.5,true);
+    if(mostrar)txt('VALORES',W-M-2,y+4.2,navy,7.5,true,'right');
+    ln(M,y+hh,W-M,y+hh,navy,0.5);
+    y+=hh;
+  }
+
+  function saltoPagina(){
+    ln(M,y,W-M,y,navy,0.4);
+    doc.addPage();y=10;
+    encabezadoCols();
+  }
+
+  encabezadoCols();
+
   rows.forEach(function(r){
     if(r.t==='sec'){
-      if(y+cfg.lh+cfg.pad*2>H-35){doc.addPage();y=10}
-      fill(M,y,wTabla,cfg.lh+cfg.pad*2,bgc);
-      txt(r.txt,M+1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true);
-      y+=cfg.lh+cfg.pad*2;alt=false;return;
+      var h1=cfg.lh+cfg.pad*2;
+      if(y+h1>H-35)saltoPagina();
+      txt(r.txt,M+2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true);
+      ln(M,y+h1,W-M,y+h1,brd,0.25);
+      divisoresRow(y,h1,false);
+      y+=h1;return;
+    }
+    if(r.t==='secnav'){
+      var h2=cfg.lh+cfg.pad*2;
+      if(y+h2>H-35)saltoPagina();
+      fill(M,y,wTabla,h2,navy);
+      txt(r.txt,M+2,y+cfg.pad+cfg.lh-0.8,blanco,cfg.f,true);
+      txt('COMENTARIOS',xDet+2,y+cfg.pad+cfg.lh-0.8,blanco,cfg.f,true);
+      if(mostrar)txt('VALORES',W-M-2,y+cfg.pad+cfg.lh-0.8,blanco,cfg.f,true,'right');
+      ln(xDet,y,xDet,y+h2,divNavy,0.15);
+      if(mostrar)ln(xPre,y,xPre,y+h2,divNavy,0.15);
+      ln(M,y,M,y+h2,navy,0.3);ln(W-M,y,W-M,y+h2,navy,0.3);
+      y+=h2;return;
     }
     if(r.t==='sub'){
-      if(y+cfg.lh+cfg.pad*1.5>H-35){doc.addPage();y=10}
-      txt(r.txt,xPre-(mostrar?30:1.5),y+cfg.pad+cfg.lh-0.8,gry,cfg.fd,false,'right');
-      if(mostrar)txt(r.pre,xPre-1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
-      y+=cfg.lh+cfg.pad*1.5;
-      ln(M,y,W-M,y,brd,0.2);return;
+      var h3=cfg.lh+cfg.pad*2;
+      if(y+h3>H-35)saltoPagina();
+      fill(M,y,wTabla,h3,subBg);
+      ln(M,y,W-M,y,navy,0.35);
+      ln(M,y+h3,W-M,y+h3,navy,0.35);
+      ln(M,y,M,y+h3,navy,0.3);ln(W-M,y,W-M,y+h3,navy,0.3);
+      txt(r.txt,W-M-(mostrar?32:2),y+cfg.pad+cfg.lh-0.8,navy,cfg.fd,true,'right');
+      if(mostrar)txt(r.pre,W-M-2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
+      y+=h3;return;
     }
     doc.setFontSize(cfg.f);doc.setFont('helvetica','bold');
-    var l1=doc.splitTextToSize(r.con,wCon-3);
+    var l1=doc.splitTextToSize(r.con,wCon-4);
     doc.setFontSize(cfg.fd);doc.setFont('helvetica','normal');
-    var l2=r.det?doc.splitTextToSize(r.det,wDet-3):[];
+    var l2=r.det?doc.splitTextToSize(r.det,wDet-4):[];
     var rh=Math.max(l1.length*cfg.lh,l2.length*cfg.lhd,cfg.lh)+cfg.pad*2;
-    if(y+rh>H-35){doc.addPage();y=10;alt=false}
-    if(alt)fill(M,y,wTabla,rh,[250,251,253]);
-    l1.forEach(function(l,k){txt(l,xCon+1.5,y+cfg.pad+cfg.lh*(k+1)-0.8,drk,cfg.f,false)});
-    l2.forEach(function(l,k){txt(l,xDet+1.5,y+cfg.pad+cfg.lhd*(k+1)-0.8,gry,cfg.fd,false)});
-    if(mostrar)txt(r.pre,xPre-1.5,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
+    if(y+rh>H-35)saltoPagina();
+    l1.forEach(function(l,k){txt(l,xCon+2,y+cfg.pad+cfg.lh*(k+1)-0.8,drk,cfg.f,false)});
+    l2.forEach(function(l,k){txt(l,xDet+2,y+cfg.pad+cfg.lhd*(k+1)-0.8,gry,cfg.fd,false)});
+    if(mostrar)txt(r.pre,W-M-2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
     ln(M,y+rh,W-M,y+rh,[243,244,247],0.1);
-    y+=rh;alt=!alt;
+    divisoresRow(y,rh,false);
+    y+=rh;
   });
 
-  y+=2;
-  fill(M,y,wTabla,11,navy);
-  txt('TOTAL',M+4,y+7.3,[136,153,170],8,true);
-  if(mostrar)txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-4,y+7.6,blanco,13,true,'right');
-  y+=13.5;
-  fill(M,y,wTabla,7,[253,240,242]);fill(M,y,1.5,7,red);
-  txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+4,y+4.7,drk,7.5,false);
+  ln(M,y,W-M,y,navy,0.4);
+  y+=3;
+
+  if(y+16>H-25){doc.addPage();y=10}
+  fill(M,y,wTabla,12,navy);
+  txt('TOTAL',M+5,y+8.2,blanco,14,true);
+  if(mostrar)txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-5,y+8.2,blanco,14,true,'right');
+  y+=14.5;
+
+  if(esCot){
+    fill(M,y,wTabla,7,[253,240,242]);fill(M,y,1.5,7,red);
+    txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+4,y+4.7,drk,7.5,false);
+    y+=9;
+  }
 
   fill(0,H-8,W,8,bgc);
   var tf=tipoDocumento==='Cotizacion'?'Cotización válida por 15 días · TornoAuto':'Comprobante generado · TornoAuto';
@@ -658,11 +717,11 @@ function descargarImagen(){
       txt(textoDocumentoMayus(),W-M,y+34,gray,15,false,'right');
       txt('#'+c.folio,W-M,y+74,red,36,true,'right');
       y+=hdrH;
-      fill(0,y,W,66,bg);ln(0,y+66,W,y+66,border);
-      txt('CLIENTE',M,y+22,navy,13,true);txt(c.cliente,M,y+48,'#1e2a3a',22,true);
-      ln(W/2,y,W/2,y+66,border);
-      txt('MOTOR',W/2+16,y+22,navy,13,true);txt(c.motor,W/2+16,y+48,'#1e2a3a',17,false);
-      y+=82;
+      fill(0,y,W,74,navy);
+      txt('CLIENTE',M,y+24,'#8fa3c4',13,true);txt(c.cliente,M,y+52,'#ffffff',22,true);
+      ln(W/2,y+8,W/2,y+66,'#33507f');
+      txt('MOTOR',W/2+16,y+24,'#8fa3c4',13,true);txt(c.motor,W/2+16,y+52,'#ffffff',17,true);
+      y+=90;
       c.secciones.forEach(function(sec,i){
         txt(sec.titulo.toUpperCase(),M,y+10,navy,FS_SECT,true);
         ctx.font='bold '+FS_SECT+'px -apple-system,system-ui,sans-serif';
@@ -732,30 +791,36 @@ function descargarImagen(){
             ln(M,y+4,W-M,y+4,'#f3f4f7',0.5);y+=14;
           });
         }
-        y+=8;ln(M,y,W-M,y,border,0.8);y+=24;
+        y+=8;ln(M,y,W-M,y,border,0.8);y+=6;
     if(grupo.flags[i]){
           if(i===grupo.lastIdx){
-            txt('Subtotal Mano de Obra',W-M-130,y,gray,16,false,'right');
-            txt(fmt(grupo.suma),W-M,y,navy,FS_SUB,true,'right');
-            y+=30;
+            fill(M,y,W-M*2,42,'#e4eaf4');
+            ln(M,y,W-M,y,navy,1.5);ln(M,y+42,W-M,y+42,navy,1.5);
+            txt('SUBTOTAL MANO DE OBRA',W-M-140,y+27,navy,15,true,'right');
+            txt(fmt(grupo.suma),W-M-10,y+28,navy,FS_SUB,true,'right');
+            y+=56;
           }else{
             y+=6;
           }
         }else{
-          txt(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal',W-M-130,y,gray,16,false,'right');
-          txt(fmt(sec.subtotal),W-M,y,navy,FS_SUB,true,'right');
-          y+=30;
+          fill(M,y,W-M*2,42,'#e4eaf4');
+          ln(M,y,W-M,y,navy,1.5);ln(M,y+42,W-M,y+42,navy,1.5);
+          txt(sec.tipo==='repuestos'?'SUBTOTAL REPUESTOS':'SUBTOTAL',W-M-140,y+27,navy,15,true,'right');
+          txt(fmt(sec.subtotal),W-M-10,y+28,navy,FS_SUB,true,'right');
+          y+=56;
         }
       });
       ctx.fillStyle=navy;
       if(ctx.roundRect){ctx.beginPath();ctx.roundRect(M,y,W-M*2,66,12);ctx.fill()}
       else{ctx.fillRect(M,y,W-M*2,66)}
-      txt('TOTAL',M+22,y+40,'rgba(255,255,255,0.5)',16,true);
+      txt('TOTAL',M+22,y+44,'#ffffff',34,true);
       txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-18,y+44,'#ffffff',34,true,'right');
       y+=82;
-      fill(M,y,W-M*2,40,'#fdf0f2');fill(M,y,4,40,red);
-      txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+16,y+25,'#1e2a3a',16,false);
-      y+=54;
+      if(tipoDocumento==='Cotizacion'){
+        fill(M,y,W-M*2,40,'#fdf0f2');fill(M,y,4,40,red);
+        txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+16,y+25,'#1e2a3a',16,false);
+        y+=54;
+      }
       
       var txtFootImg = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
       fill(0,y,W,30,bg);txt(txtFootImg,W/2,y+19,gray,15,false,'center');y+=30;
