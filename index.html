@@ -173,7 +173,7 @@ function toggleTipoDocumento(){
   var btn = document.getElementById('btnTipoDoc');
   var titulo = document.getElementById('tituloDocumento');
   var footer = document.getElementById('footerDocumento');
-  
+
   if(tipoDocumento === 'Cotizacion'){
     tipoDocumento = 'Comprobante';
     if(btn) btn.innerHTML = '🧾 Comprobante';
@@ -244,7 +244,6 @@ function ordenarCotizacion(c){
   return copia;
 }
 
-
 function cotFiltrada(){
   if(!cotData)return null;
   var filtro=document.getElementById('selFiltro').value;
@@ -302,9 +301,9 @@ function renderCotizacion(c){
         h+='</div><span class="rp precio">'+fmt(item.precio)+'</span></div>';
       });
     }
-  if(grupo.flags[i]){
+    if(grupo.flags[i]){
       if(i===grupo.lastIdx){
-h+='<div class="sb"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma)+'</strong></div>';
+        h+='<div class="sb"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma)+'</strong></div>';
       }
     }else{
       h+='<div class="sb"><small>'+(sec.tipo==='repuestos'?'Subtotal Repuestos':'Subtotal')+'</small><strong>'+fmt(sec.subtotal)+'</strong></div>';
@@ -317,6 +316,7 @@ h+='<div class="sb"><small>Subtotal Mano de Obra</small><strong>'+fmt(grupo.suma
   }
   document.getElementById('cotBody').innerHTML=h;
   document.getElementById('cotCard').style.display='block';
+  document.querySelectorAll('.precio').forEach(function(el){el.classList.toggle('hide',!preciosVisibles)});
 }
 
 document.getElementById('selFiltro').addEventListener('change',function(){
@@ -358,7 +358,7 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
   var logoW=LOGO_DATA?(LOGO_W/LOGO_H)*logoH:logoH*4;
   if(LOGO_DATA){try{doc.addImage(LOGO_DATA,'PNG',M,y+(hdrH-logoH)/2,logoW,logoH)}catch(e){txt('TornoAuto',M,y+(esCarta?19:11),navy,fs.h1,true)}}
   else{txt('TornoAuto',M,y+(esCarta?19:11),navy,fs.h1,true)}
-  
+
   txt(textoDocumentoMayus(),W-M,y+(esCarta?12:7),gray,fs.tiny,false,'right');
   txt('#'+c.folio,W-M,y+(esCarta?26:14),red,fs.h2,true,'right');
   y+=hdrH;
@@ -439,7 +439,7 @@ function dibujarPDF(doc,W,c,mostrar,esCarta){
       });
     }
     ln(M,y,W-M,y,border,0.2);y+=esCarta?3:1.5;
-if(grupo.flags[i]){
+    if(grupo.flags[i]){
       if(i===grupo.lastIdx){
         txt('Subtotal Mano de Obra',W-M-(esCarta?42:27),y+(esCarta?6:3.5),gray,fs.small,false,'right');
         txt(fmt(grupo.suma),W-M,y+(esCarta?6:3.5),navy,fs.sub,true,'right');
@@ -475,7 +475,7 @@ if(grupo.flags[i]){
     y+=ntH+(esCarta?8:3);
   }
   fill(0,y,W,esCarta?16:9,bg);
-  
+
   var txtFoot = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
   txt(txtFoot,W/2,y+(esCarta?10:5.5),gray,fs.tiny+1,false,'center');
   y+=(esCarta?16:9);
@@ -670,93 +670,6 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
   var tf=tipoDocumento==='Cotizacion'?'Cotización válida por 15 días · TornoAuto':'Comprobante generado · TornoAuto';
   txt(tf,W/2,H-3,gry,7,false,'center');
 }
-  function bandaNavy(titulo){
-    var hh=7;
-    fill(M,y,wTabla,hh,navy);
-    txt(titulo,xCon+2,y+4.8,blanco,7.5,true);
-    txt('COMENTARIOS',xDet+2,y+4.8,blanco,7.5,true);
-    if(mostrar)txt('VALORES',W-M-2,y+4.8,blanco,7.5,true,'right');
-    ln(xDet,y,xDet,y+hh,divNavy,0.15);
-    if(mostrar)ln(xPre,y,xPre,y+hh,divNavy,0.15);
-    y+=hh;
-  }
-
-  function saltoPagina(){
-    ln(M,y,W-M,y,navy,0.4);
-    doc.addPage();y=10;
-    bandaNavy('MANO DE OBRA');
-  }
-
-  bandaNavy('MANO DE OBRA');
-
-  rows.forEach(function(r){
-    if(r.t==='gap'){
-      ln(M,y,W-M,y,navy,0.4);
-      y+=GAP;return;
-    }
-    if(r.t==='sec'){
-      var h1=cfg.lh+cfg.pad*2;
-      if(y+h1>H-35)saltoPagina();
-      txt(r.txt,M+2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true);
-      ln(M,y+h1,W-M,y+h1,brd,0.25);
-      divisoresRow(y,h1);
-      y+=h1;return;
-    }
-    if(r.t==='secnav'){
-      var h2=7;
-      if(y+h2>H-35)saltoPagina();
-      fill(M,y,wTabla,h2,navy);
-      txt(r.txt,xCon+2,y+4.8,blanco,7.5,true);
-      txt('COMENTARIOS',xDet+2,y+4.8,blanco,7.5,true);
-      if(mostrar)txt('VALORES',W-M-2,y+4.8,blanco,7.5,true,'right');
-      ln(xDet,y,xDet,y+h2,divNavy,0.15);
-      if(mostrar)ln(xPre,y,xPre,y+h2,divNavy,0.15);
-      y+=h2;return;
-    }
-    if(r.t==='sub'){
-      var h3=cfg.lh+cfg.pad*2;
-      if(y+h3>H-35)saltoPagina();
-      fill(M,y,wTabla,h3,subBg);
-      ln(M,y,W-M,y,navy,0.35);
-      ln(M,y+h3,W-M,y+h3,navy,0.35);
-      ln(M,y,M,y+h3,navy,0.3);ln(W-M,y,W-M,y+h3,navy,0.3);
-      txt(r.txt,W-M-(mostrar?32:2),y+cfg.pad+cfg.lh-0.8,navy,cfg.fd,true,'right');
-      if(mostrar)txt(r.pre,W-M-2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
-      y+=h3;return;
-    }
-    doc.setFontSize(cfg.f);doc.setFont('helvetica','bold');
-    var l1=doc.splitTextToSize(r.con,wCon-4);
-    doc.setFontSize(cfg.fd);doc.setFont('helvetica','normal');
-    var l2=r.det?doc.splitTextToSize(r.det,wDet-4):[];
-    var rh=Math.max(l1.length*cfg.lh,l2.length*cfg.lhd,cfg.lh)+cfg.pad*2;
-    if(y+rh>H-35)saltoPagina();
-    l1.forEach(function(l,k){txt(l,xCon+2,y+cfg.pad+cfg.lh*(k+1)-0.8,drk,cfg.f,false)});
-    l2.forEach(function(l,k){txt(l,xDet+2,y+cfg.pad+cfg.lhd*(k+1)-0.8,gry,cfg.fd,false)});
-    if(mostrar)txt(r.pre,W-M-2,y+cfg.pad+cfg.lh-0.8,navy,cfg.f,true,'right');
-    ln(M,y+rh,W-M,y+rh,[243,244,247],0.1);
-    divisoresRow(y,rh);
-    y+=rh;
-  });
-
-  ln(M,y,W-M,y,navy,0.4);
-  y+=3;
-
-  if(y+16>H-25){doc.addPage();y=10}
-  fill(M,y,wTabla,12,navy);
-  txt('TOTAL',M+5,y+8.2,blanco,14,true);
-  if(mostrar)txt('Q '+c.total.toLocaleString('es-GT',{minimumFractionDigits:2}),W-M-5,y+8.2,blanco,14,true,'right');
-  y+=14.5;
-
-  if(esCot){
-    fill(M,y,wTabla,7,[253,240,242]);fill(M,y,1.5,7,red);
-    txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+4,y+4.7,drk,7.5,false);
-    y+=9;
-  }
-
-  fill(0,H-8,W,8,bgc);
-  var tf=tipoDocumento==='Cotizacion'?'Cotización válida por 15 días · TornoAuto':'Comprobante generado · TornoAuto';
-  txt(tf,W/2,H-3,gry,7,false,'center');
-}
 
 function descargarPDF(tipo){
   var c=cotFiltrada();if(!c)return;
@@ -808,7 +721,7 @@ function descargarImagen(){
       fill(0,y,W,hdrH,'#ffffff');fill(0,y+hdrH-3,W,3,navy);
       if(logoOk){var logoH=66,logoW=(LOGO_W/LOGO_H)*logoH;ctx.drawImage(logoImg,M,y+(hdrH-logoH)/2,logoW,logoH)}
       else{txt('TornoAuto',M,y+60,navy,38,true)}
-      
+
       txt(textoDocumentoMayus(),W-M,y+34,gray,15,false,'right');
       txt('#'+c.folio,W-M,y+74,red,36,true,'right');
       y+=hdrH;
@@ -889,7 +802,7 @@ function descargarImagen(){
           });
         }
         y+=8;ln(M,y,W-M,y,border,0.8);y+=6;
-    if(grupo.flags[i]){
+        if(grupo.flags[i]){
           if(i===grupo.lastIdx){
             fill(M,y,W-M*2,42,'#e4eaf4');
             ln(M,y,W-M,y,navy,1.5);ln(M,y+42,W-M,y+42,navy,1.5);
@@ -918,10 +831,10 @@ function descargarImagen(){
         txt('Anticipo: Se requiere 50% del total para iniciar trabajo.',M+16,y+25,'#1e2a3a',16,false);
         y+=54;
       }
-      
+
       var txtFootImg = tipoDocumento === 'Cotizacion' ? 'Cotización válida por 15 días · TornoAuto' : 'Comprobante generado · TornoAuto';
       fill(0,y,W,30,bg);txt(txtFootImg,W/2,y+19,gray,15,false,'center');y+=30;
-      
+
       var final=document.createElement('canvas');final.width=W*S;final.height=y*S;
       final.getContext('2d').drawImage(canvas,0,0);
       var link=document.createElement('a');
