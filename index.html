@@ -412,7 +412,7 @@ function dibujarPDF(doc,W,c,mostrar){
         nombre=((it.cantidad||1)>1?it.cantidad+'× ':'')+(it.repuesto||it.nr||'-');
         precio=fmt(it.total||0);
         if(it.medida)det.push('Med: '+it.medida);
-        if(it.escadm)det.push('ESC/ADM: '+it.escadm);
+        if(it.escadm)det.push(''+it.escadm);
         if(it.presentacion)det.push('Pres: '+it.presentacion);
         if(it.contiene)det.push('Cont: '+it.contiene);
         if(it.marca && it.marca!=='---')det.push('Marca: '+it.marca);
@@ -526,7 +526,7 @@ function dibujarPDFCartaTabla(doc,c,mostrar){
       sec.items.forEach(function(r){
         var det=[];
         if(r.medida)det.push('Med: '+r.medida);
-        if(r.escadm)det.push('ESC/ADM: '+r.escadm);
+        if(r.escadm)det.push(''+r.escadm);
         if(r.presentacion)det.push('Pres: '+r.presentacion);
         if(r.contiene)det.push('Cont: '+r.contiene);
         if(r.marca && r.marca!=='---')det.push('Marca: '+r.marca);
@@ -766,7 +766,7 @@ function descargarImagen(){
             y=yNombre;
             var det=[];
             if(r.medida)det.push('Medida: '+r.medida);
-            if(r.escadm)det.push('ESC/ADM: '+r.escadm);
+            if(r.escadm)det.push(': '+r.escadm);
             if(r.presentacion)det.push('Present: '+r.presentacion);
             if(r.contiene)det.push('Cont: '+r.contiene);
             if(r.marca && r.marca!=='---')det.push('Marca: '+r.marca);
